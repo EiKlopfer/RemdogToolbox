@@ -52,8 +52,21 @@
             cursor: pointer;
             font-size: 24px; /* For target labels */
         }
+        /* Green border for 5x5 tiles, but only on the edges of the tile */
+        .green-border-top {
+            border-top: 2px solid green;
+        }
+        .green-border-bottom {
+            border-bottom: 2px solid green;
+        }
+        .green-border-left {
+            border-left: 2px solid green;
+        }
+        .green-border-right {
+            border-right: 2px solid green;
+        }
         .obstacle {
-            border-color: red; /* Red border for obstacles */
+            border-color: red !important; /* Red border for obstacles */
         }
         .selected {
             background-color: #ff9800; /* Orange for selected squares */
@@ -66,11 +79,11 @@
             font-weight: bold;
         }
         .t1 { background-color: rgba(0, 0, 255, 0.5); } /* Blue for T1 visibility */
-        .t2 { background-color: rgba(0, 255, 0, 0.5); } /* Green for T2 visibility */
+        .t2 { background-color: rgba(255, 165, 0, 0.5); } /* Orange for T2 visibility */
         .t3 { background-color: rgba(255, 255, 0, 0.5); } /* Yellow for T3 visibility */
         .t1.t2 { background-color: rgba(0, 255, 255, 0.5); } /* Cyan for T1 and T2 overlap */
         .t1.t3 { background-color: rgba(127, 0, 255, 0.5); } /* Purple for T1 and T3 overlap */
-        .t2.t3 { background-color: rgba(127, 255, 0, 0.5); } /* Lime for T2 and T3 overlap */
+        .t2.t3 { background-color: rgba(255, 20, 147, 0.5); } /* Deep Pink for T2 and T3 overlap */
         .t1.t2.t3 { background-color: rgba(255, 0, 255, 0.5); } /* Magenta for all targets */
         canvas {
             position: absolute;
@@ -115,8 +128,16 @@
     </div>
 
     <div class="legend" id="legend">
-        <strong>Legend:</strong> <span style="background-color: rgba(0, 0, 255, 0.5);">T1</span> <span style="background-color: rgba(0, 255, 0, 0.5);">T2</span> <span style="background-color: rgba(255, 255, 0, 0.5);">T3</span> <span style="background-color: rgba(0, 255, 255, 0.5);">T1+T2</span> <span style="background-color: rgba(127, 0, 255, 0.5);">T1+T3</span> <span style="background-color: rgba(127, 255, 0, 0.5);">T2+T3</span> <span style="background-color: rgba(255, 0, 255, 0.5);">T1+T2+T3</span>
+        <strong>Legend:</strong> 
+        <span style="background-color: rgba(0, 0, 255, 0.5);">T1</span> 
+        <span style="background-color: rgba(255, 165, 0, 0.5);">T2</span> 
+        <span style="background-color: rgba(255, 255, 0, 0.5);">T3</span> 
+        <span style="background-color: rgba(0, 255, 255, 0.5);">T1+T2</span> 
+        <span style="background-color: rgba(127, 0, 255, 0.5);">T1+T3</span> 
+        <span style="background-color: rgba(255, 20, 147, 0.5);">T2+T3</span> 
+        <span style="background-color: rgba(255, 0, 255, 0.5);">T1+T2+T3</span>
     </div>
+
 
     <div class="container">
         <div class="grid" id="grid"></div>
@@ -172,19 +193,11 @@
                     cell.dataset.row = row;
                     cell.dataset.col = col;
 
-                    // Apply green border for the edges of a 5x5 tile
-                    if (row % 5 === 0) {
-                        cell.style.borderTop = '2px solid green';
-                    }
-                    if (col % 5 === 0) {
-                        cell.style.borderLeft = '2px solid green';
-                    }
-                    if ((row + 1) % 5 === 0) {
-                        cell.style.borderBottom = '2px solid green';
-                    }
-                    if ((col + 1) % 5 === 0) {
-                        cell.style.borderRight = '2px solid green';
-                    }
+                    // Apply green borders only for the edges of the tiles
+                    if (row % 5 === 0) cell.classList.add('green-border-top');
+                    if ((row + 1) % 5 === 0) cell.classList.add('green-border-bottom');
+                    if (col % 5 === 0) cell.classList.add('green-border-left');
+                    if ((col + 1) % 5 === 0) cell.classList.add('green-border-right');
 
                     gridElement.appendChild(cell);
                     cell.addEventListener('click', () => handleCellClick(row, col));
