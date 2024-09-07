@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Line of Sight Calculation with 127-Pixel Squares</title>
+    <title>Line of Sight Helper</title>
     <style>
         body {
             background-color: #1e1e1e; /* Dark background color */
@@ -14,22 +14,35 @@
             justify-content: flex-start;
             margin: 0;
             padding: 20px;
-            overflow: auto;
+            overflow: scroll; /* Enable page-level scrolling */
         }
         .controls {
             margin-bottom: 20px;
         }
+        .mode-controls {
+            margin-bottom: 20px;
+        }
+        .map-mode-controls {
+            margin-bottom: 20px;
+            display: none; /* Hidden by default */
+        }
+        .active-mode {
+            font-weight: bold;
+            text-decoration: underline;
+        }
+        .legend {
+            margin-bottom: 20px;
+            display: none; /* Hidden until more than one target is placed */
+            font-size: 18px;
+        }
         .container {
             position: relative;
-            overflow: auto;
         }
         .grid {
             display: grid;
             gap: 0px;
         }
         .cell {
-            width: 125px;
-            height: 125px;
             background-color: #333333; /* Darker grid squares */
             border: 2px solid #555555; /* Slightly lighter border */
             box-sizing: border-box;
@@ -37,6 +50,10 @@
             justify-content: center;
             align-items: center;
             cursor: pointer;
+            font-size: 24px; /* For target labels */
+        }
+        .obstacle {
+            border-color: red; /* Red border for obstacles */
         }
         .selected {
             background-color: #ff9800; /* Orange for selected squares */
@@ -44,38 +61,82 @@
         .intersected {
             background-color: #e91e63; /* Pink for intersected squares */
         }
+        .t1, .t2, .t3 {
+            color: white;
+            font-weight: bold;
+        }
+        .t1 { background-color: rgba(0, 0, 255, 0.5); } /* Blue for T1 visibility */
+        .t2 { background-color: rgba(0, 255, 0, 0.5); } /* Green for T2 visibility */
+        .t3 { background-color: rgba(255, 255, 0, 0.5); } /* Yellow for T3 visibility */
+        .t1.t2 { background-color: rgba(0, 255, 255, 0.5); } /* Cyan for T1 and T2 overlap */
+        .t1.t3 { background-color: rgba(127, 0, 255, 0.5); } /* Purple for T1 and T3 overlap */
+        .t2.t3 { background-color: rgba(127, 255, 0, 0.5); } /* Lime for T2 and T3 overlap */
+        .t1.t2.t3 { background-color: rgba(255, 0, 255, 0.5); } /* Magenta for all targets */
         canvas {
             position: absolute;
             top: 0;
             left: 0;
             pointer-events: none;
         }
+        @media (max-width: 768px) {
+            .cell {
+                width: 63px;
+                height: 63px;
+            }
+        }
+        @media (min-width: 769px) {
+            .cell {
+                width: 127px;
+                height: 127px;
+            }
+        }
     </style>
 </head>
 <body>
     <div class="controls">
-        <label for="rows">Rows:</label>
-        <input type="number" id="rows" value="7" min="1" max="20">
-        <label for="columns">Columns:</label>
-        <input type="number" id="columns" value="7" min="1" max="20">
+        <label for="tilesWide">Tiles Wide:</label>
+        <input type="number" id="tilesWide" value="2" min="1" max="10">
+        <label for="tilesHigh">Tiles High:</label>
+        <input type="number" id="tilesHigh" value="1" min="1" max="10">
         <button onclick="generateGrid()">Generate Grid</button>
+    </div>
+    
+    <div class="mode-controls">
+        <button id="figuresModeBtn" onclick="switchToFiguresMode()">Figures Mode</button>
+        <button id="mapModeBtn" onclick="switchToMapMode()">Map Mode</button>
+        <span id="currentModeText"></span>
+    </div>
+    
+    <div class="map-mode-controls">
+        <button onclick="setMapMode('obstacles')">Place Obstacles/Walls</button>
+        <button onclick="setMapMode('target1')">Place T1</button>
+        <button onclick="setMapMode('target2')">Place T2</button>
+        <button onclick="setMapMode('target3')">Place T3</button>
+    </div>
+
+    <div class="legend" id="legend">
+        <strong>Legend:</strong> <span style="background-color: rgba(0, 0, 255, 0.5);">T1</span> <span style="background-color: rgba(0, 255, 0, 0.5);">T2</span> <span style="background-color: rgba(255, 255, 0, 0.5);">T3</span> <span style="background-color: rgba(0, 255, 255, 0.5);">T1+T2</span> <span style="background-color: rgba(127, 0, 255, 0.5);">T1+T3</span> <span style="background-color: rgba(127, 255, 0, 0.5);">T2+T3</span> <span style="background-color: rgba(255, 0, 255, 0.5);">T1+T2+T3</span>
     </div>
 
     <div class="container">
         <div class="grid" id="grid"></div>
         <canvas id="lineCanvas"></canvas>
-    </div>
+    </div>    
 
     <script>
         const gridElement = document.getElementById('grid');
         const canvas = document.getElementById('lineCanvas');
         const container = document.querySelector('.container');
         const ctx = canvas.getContext('2d');
-
         let grid = [];
-        let startSquare = null;
-        let targetSquare = null;
-        const squareSize = 127; // Total size of square including border
+        let mode = 'figures'; // Default mode
+        let mapMode = null; // Map mode actions
+        let obstacles = new Set();
+        let targets = { t1: null, t2: null, t3: null };
+        const legendElement = document.getElementById('legend');
+        const figuresModeBtn = document.getElementById('figuresModeBtn');
+        const mapModeBtn = document.getElementById('mapModeBtn');
+        const currentModeText = document.getElementById('currentModeText');
 
         function resizeCanvas() {
             canvas.width = gridElement.scrollWidth;
@@ -85,27 +146,48 @@
         window.addEventListener('resize', resizeCanvas);
 
         function generateGrid() {
-            const rows = document.getElementById('rows').value;
-            const columns = document.getElementById('columns').value;
+            const tilesWide = document.getElementById('tilesWide').value;
+            const tilesHigh = document.getElementById('tilesHigh').value;
 
-            gridElement.style.gridTemplateColumns = `repeat(${columns}, ${squareSize}px)`;
-            gridElement.style.gridTemplateRows = `repeat(${rows}, ${squareSize}px)`;
+            const squaresWide = tilesWide * 5;
+            const squaresHigh = tilesHigh * 5;
+
+            gridElement.style.gridTemplateColumns = `repeat(${squaresWide}, 1fr)`;
+            gridElement.style.gridTemplateRows = `repeat(${squaresHigh}, 1fr)`;
 
             gridElement.innerHTML = ''; // Clear existing grid
             grid = [];
             startSquare = null;
             targetSquare = null;
             ctx.clearRect(0, 0, canvas.width, canvas.height);
+            obstacles.clear();
+            targets = { t1: null, t2: null, t3: null };
+            legendElement.style.display = 'none'; // Hide legend when grid is reset
 
-            for (let row = 0; row < rows; row++) {
+            for (let row = 0; row < squaresHigh; row++) {
                 grid[row] = [];
-                for (let col = 0; col < columns; col++) {
+                for (let col = 0; col < squaresWide; col++) {
                     const cell = document.createElement('div');
                     cell.className = 'cell';
                     cell.dataset.row = row;
                     cell.dataset.col = col;
-                    cell.addEventListener('click', () => handleCellClick(row, col));
+
+                    // Apply green border for the edges of a 5x5 tile
+                    if (row % 5 === 0) {
+                        cell.style.borderTop = '2px solid green';
+                    }
+                    if (col % 5 === 0) {
+                        cell.style.borderLeft = '2px solid green';
+                    }
+                    if ((row + 1) % 5 === 0) {
+                        cell.style.borderBottom = '2px solid green';
+                    }
+                    if ((col + 1) % 5 === 0) {
+                        cell.style.borderRight = '2px solid green';
+                    }
+
                     gridElement.appendChild(cell);
+                    cell.addEventListener('click', () => handleCellClick(row, col));
                     grid[row][col] = cell;
                 }
             }
@@ -114,15 +196,32 @@
         }
 
         function handleCellClick(row, col) {
-            if (!startSquare) {
-                startSquare = { row, col };
-                grid[row][col].classList.add('selected');
-            } else if (!targetSquare) {
-                targetSquare = { row, col };
-                grid[row][col].classList.add('selected');
-                drawLineOfSight();
-            } else {
-                resetSelection();
+            const cell = grid[row][col];
+
+            if (mode === 'figures') {
+                if (!startSquare) {
+                    startSquare = { row, col };
+                    cell.classList.add('selected');
+                } else if (!targetSquare) {
+                    targetSquare = { row, col };
+                    cell.classList.add('selected');
+                    drawLineOfSight();
+                } else {
+                    resetSelection();
+                }
+            } else if (mode === 'map') {
+                if (mapMode === 'obstacles') {
+                    if (obstacles.has(`${row},${col}`)) {
+                        obstacles.delete(`${row},${col}`);
+                        cell.classList.remove('obstacle');
+                    } else {
+                        obstacles.add(`${row},${col}`);
+                        cell.classList.add('obstacle');
+                    }
+                    updateAllTargetVisibility(); // Update visibility when obstacles change
+                } else if (mapMode.startsWith('target')) {
+                    placeTarget(row, col, mapMode);
+                }
             }
         }
 
@@ -135,47 +234,11 @@
             });
         }
 
-        function wuLine(x0, y0, x1, y1) {
-            const squares = [];
-            
-            const dx = Math.abs(x1 - x0);
-            const dy = Math.abs(y1 - y0);
-            const sx = x0 < x1 ? 1 : -1;
-            const sy = y0 < y1 ? 1 : -1;
-
-            let err = dx - dy;
-            let e2;
-
-            while (true) {
-                const gridX = Math.floor(x0 / squareSize);
-                const gridY = Math.floor(y0 / squareSize);
-                
-                if (!squares.some(square => square.x === gridX && square.y === gridY)) {
-                    squares.push({ x: gridX, y: gridY });
-                }
-
-                if (x0 === x1 && y0 === y1) break;
-
-                e2 = 2 * err;
-                
-                if (e2 > -dy) {
-                    err -= dy;
-                    x0 += sx;
-                }
-                if (e2 < dx) {
-                    err += dx;
-                    y0 += sy;
-                }
-            }
-
-            return squares;
-        }
-
         function drawLineOfSight() {
-            const startX = startSquare.col * squareSize + Math.floor(squareSize / 2);
-            const startY = startSquare.row * squareSize + Math.floor(squareSize / 2);
-            const targetX = targetSquare.col * squareSize + Math.floor(squareSize / 2);
-            const targetY = targetSquare.row * squareSize + Math.floor(squareSize / 2);
+            const startX = startSquare.col * squareSize() + Math.floor(squareSize() / 2);
+            const startY = startSquare.row * squareSize() + Math.floor(squareSize() / 2);
+            const targetX = targetSquare.col * squareSize() + Math.floor(squareSize() / 2);
+            const targetY = targetSquare.row * squareSize() + Math.floor(squareSize() / 2);
 
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             ctx.beginPath();
@@ -193,12 +256,136 @@
             grid.flat().forEach(cell => {
                 const cellX = parseInt(cell.dataset.col, 10);
                 const cellY = parseInt(cell.dataset.row, 10);
-
                 if (intersectedSquares.some(square => square.x === cellX && square.y === cellY)) {
                     cell.classList.add('intersected');
                 }
             });
         }
+
+        function placeTarget(row, col, target) {
+            const targetKey = target.replace('target', 't'); // Convert 'target1' to 't1', etc.
+            const currentTarget = targets[targetKey];
+
+            // Remove target if clicked on the same square
+            if (currentTarget && currentTarget[0] === row && currentTarget[1] === col) {
+                grid[row][col].textContent = '';
+                targets[targetKey] = null;
+                grid[row][col].classList.remove(targetKey);
+                updateAllTargetVisibility(); // Update visibility when target is removed
+                return;
+            }
+
+            // Remove previous target placement
+            if (targets[targetKey]) {
+                const [prevRow, prevCol] = targets[targetKey];
+                grid[prevRow][prevCol].textContent = '';
+                grid[prevRow][prevCol].classList.remove(targetKey);
+            }
+
+            // Place new target
+            targets[targetKey] = [row, col];
+            grid[row][col].textContent = target === 'target1' ? 'T1' : target === 'target2' ? 'T2' : 'T3';
+            grid[row][col].classList.add(targetKey);
+            updateAllTargetVisibility(); // Update visibility when target is placed
+
+            // Display the legend if more than one target has been placed
+            if (Object.values(targets).filter(t => t !== null).length > 1) {
+                legendElement.style.display = 'block';
+            } else {
+                legendElement.style.display = 'none';
+            }
+        }
+
+        function updateAllTargetVisibility() {
+            // Clear previous visibility marks for all targets
+            grid.flat().forEach(cell => {
+                cell.classList.remove('t1', 't2', 't3');
+            });
+
+            // Recalculate visibility for all targets
+            for (const [key, target] of Object.entries(targets)) {
+                if (target) {
+                    calculateLineOfSightForTarget(target[0], target[1], key);
+                }
+            }
+        }
+
+        function calculateLineOfSightForTarget(row, col, target) {
+            grid.flat().forEach(cell => {
+                const cellRow = parseInt(cell.dataset.row, 10);
+                const cellCol = parseInt(cell.dataset.col, 10);
+                if (!obstacles.has(`${cellRow},${cellCol}`)) {
+                    const lineSquares = wuLine(row * squareSize() + Math.floor(squareSize() / 2), col * squareSize() + Math.floor(squareSize() / 2),
+                        cellRow * squareSize() + Math.floor(squareSize() / 2), cellCol * squareSize() + Math.floor(squareSize() / 2));
+                    const hasObstacle = lineSquares.some(sq => obstacles.has(`${sq.x},${sq.y}`));
+                    if (!hasObstacle) {
+                        cell.classList.add(target);
+                    }
+                }
+            });
+        }
+
+        function switchToFiguresMode() {
+            mode = 'figures';
+            document.querySelector('.map-mode-controls').style.display = 'none';
+            currentModeText.textContent = 'Current Mode: Figures Mode';
+            figuresModeBtn.classList.add('active-mode');
+            mapModeBtn.classList.remove('active-mode');
+        }
+
+        function switchToMapMode() {
+            mode = 'map';
+            document.querySelector('.map-mode-controls').style.display = 'block';
+            currentModeText.textContent = 'Current Mode: Map Mode (Placing Obstacles/Walls)';
+            figuresModeBtn.classList.remove('active-mode');
+            mapModeBtn.classList.add('active-mode');
+            mapMode = 'obstacles'; // Default to obstacle placement mode in Map Mode
+        }
+
+        function setMapMode(newMode) {
+            mapMode = newMode;
+            currentModeText.textContent = `Current Mode: Map Mode (Placing ${newMode === 'obstacles' ? 'Obstacles/Walls' : 'T' + newMode.replace('target', '')})`;
+        }
+
+        function wuLine(x0, y0, x1, y1) {
+            const squares = [];
+            const dx = Math.abs(x1 - x0);
+            const dy = Math.abs(y1 - y0);
+            const sx = x0 < x1 ? 1 : -1;
+            const sy = y0 < y1 ? 1 : -1;
+            let err = dx - dy;
+            let e2;
+
+            while (true) {
+                const gridX = Math.floor(x0 / squareSize());
+                const gridY = Math.floor(y0 / squareSize());
+
+                if (!squares.some(square => square.x === gridX && square.y === gridY)) {
+                    squares.push({ x: gridX, y: gridY });
+                }
+
+                if (x0 === x1 && y0 === y1) break;
+
+                e2 = 2 * err;
+                if (e2 > -dy) {
+                    err -= dy;
+                    x0 += sx;
+                }
+                if (e2 < dx) {
+                    err += dx;
+                    y0 += sy;
+                }
+            }
+            return squares;
+        }
+
+        function squareSize() {
+            return window.innerWidth <= 768 ? 63 : 127;
+        }
+
+        window.onload = function() {
+            switchToFiguresMode(); // Start in Figures Mode
+        };
 
         // Initial grid generation
         generateGrid();
