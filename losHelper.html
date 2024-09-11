@@ -401,7 +401,12 @@
         }
 
         function squareSize() {
-            return window.innerWidth <= 768 ? 63 : 127;
+            // Use matchMedia to check if the screen width matches the CSS media query
+            if (window.matchMedia("(max-width: 768px)").matches) {
+                return 63; // Mobile size
+            } else {
+                return 127; // Desktop size
+            }
         }
 
         window.onload = function() {
