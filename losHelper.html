@@ -10,12 +10,26 @@
             color: #ffffff; /* Light text color */
             display: flex;
             flex-direction: column;
-            align-items: center;
+            align-items: flex-start; /* Left-align the content */
             justify-content: flex-start;
             margin: 0;
             padding: 20px;
-            overflow: scroll; /* Enable page-level scrolling */
+            overflow-x: auto; /* Enable horizontal scrolling for the entire page */
+            overflow-y: auto; /* Enable vertical scrolling for the entire page */
         }
+
+        .container {
+            position: relative;
+            overflow: visible; /* Allow the container to grow without adding a scrollbar */
+            align-self: flex-start; /* Left-align the container */
+        }
+
+        .grid {
+            display: grid;
+            gap: 0px; /* No gaps between the squares */
+            align-self: flex-start; /* Ensure the grid is left-aligned */
+        }
+
         .controls {
             margin-bottom: 20px;
         }
@@ -34,13 +48,6 @@
             margin-bottom: 20px;
             display: none; /* Hidden until more than one target is placed */
             font-size: 18px;
-        }
-        .container {
-            position: relative;
-        }
-        .grid {
-            display: grid;
-            gap: 0px;
         }
         .cell {
             background-color: #333333; /* Darker grid squares */
