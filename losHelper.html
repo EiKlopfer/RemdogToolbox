@@ -52,7 +52,7 @@
             cursor: pointer;
             font-size: 24px; /* For target labels */
         }
-        /* Green border for 5x5 tiles, but only on the edges of the tile */
+        /* Green border for tileSizextileSize tiles, but only on the edges of the tile */
         .green-border-top {
             border-top: 2px solid green;
         }
@@ -158,6 +158,7 @@
         const figuresModeBtn = document.getElementById('figuresModeBtn');
         const mapModeBtn = document.getElementById('mapModeBtn');
         const currentModeText = document.getElementById('currentModeText');
+        const tileSize = 6;
 
         function resizeCanvas() {
             canvas.width = gridElement.scrollWidth;
@@ -170,8 +171,8 @@
             const tilesWide = document.getElementById('tilesWide').value;
             const tilesHigh = document.getElementById('tilesHigh').value;
 
-            const squaresWide = tilesWide * 5;
-            const squaresHigh = tilesHigh * 5;
+            const squaresWide = tilesWide * tileSize;
+            const squaresHigh = tilesHigh * tileSize;
 
             gridElement.style.gridTemplateColumns = `repeat(${squaresWide}, 1fr)`;
             gridElement.style.gridTemplateRows = `repeat(${squaresHigh}, 1fr)`;
@@ -194,10 +195,10 @@
                     cell.dataset.col = col;
 
                     // Apply green borders only for the edges of the tiles
-                    if (row % 5 === 0) cell.classList.add('green-border-top');
-                    if ((row + 1) % 5 === 0) cell.classList.add('green-border-bottom');
-                    if (col % 5 === 0) cell.classList.add('green-border-left');
-                    if ((col + 1) % 5 === 0) cell.classList.add('green-border-right');
+                    if (row % tileSize === 0) cell.classList.add('green-border-top');
+                    if ((row + 1) % tileSize === 0) cell.classList.add('green-border-bottom');
+                    if (col % tileSize === 0) cell.classList.add('green-border-left');
+                    if ((col + 1) % tileSize === 0) cell.classList.add('green-border-right');
 
                     gridElement.appendChild(cell);
                     cell.addEventListener('click', () => handleCellClick(row, col));
