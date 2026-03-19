@@ -29,7 +29,7 @@
     --text: #e8e0cc;
     --text-dim: #8a8070;
     --radius: 16px;
-    --card-w: min(340px, 92vw);
+    --card-w: min(440px, calc(100vw - 24px));
   }
 
   * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -58,29 +58,8 @@
     z-index: 0;
   }
 
-  header {
-    text-align: center;
-    padding: 24px 16px 12px;
-    position: relative;
-    z-index: 1;
-    width: 100%;
-  }
-
-  header h1 {
-    font-family: 'Cinzel', serif;
-    font-size: clamp(14px, 4vw, 18px);
-    font-weight: 600;
-    letter-spacing: 0.2em;
-    text-transform: uppercase;
-    color: var(--text-dim);
-  }
-
-  header p {
-    font-size: 11px;
-    letter-spacing: 0.15em;
-    text-transform: uppercase;
-    color: #5a5040;
-    margin-top: 4px;
+  @media (max-width: 480px) {
+    .main { gap: 12px; padding: 6px 12px 14px; }
   }
 
   .main {
@@ -88,12 +67,12 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding: 8px 16px 24px;
-    gap: 20px;
+    padding: 8px 12px 20px;
+    gap: 16px;
     position: relative;
     z-index: 1;
     width: 100%;
-    max-width: 420px;
+    max-width: 480px;
   }
 
   /* DECK STATUS */
@@ -141,6 +120,9 @@
 
   .card {
     width: 100%;
+    aspect-ratio: 3/4;
+    display: flex;
+    flex-direction: column;
     border-radius: var(--radius);
     overflow: hidden;
     box-shadow:
@@ -170,12 +152,13 @@
     100% { transform: translateY(0) scale(1); opacity: 1; }
   }
 
-  /* Aspect grid - top 2/3 */
+  /* Aspect grid - top 80% */
   .aspects {
     display: grid;
     grid-template-columns: 1fr 1fr;
     grid-template-rows: 1fr 1fr;
-    aspect-ratio: 1 / 1;
+    flex: 4;
+    min-height: 0;
   }
 
   .aspect-cell {
@@ -203,7 +186,7 @@
 
   .aspect-modifier {
     font-family: 'Cinzel', serif;
-    font-size: clamp(36px, 12vw, 52px);
+    font-size: clamp(36px, 14vw, 88px);
     font-weight: 700;
     line-height: 1;
     letter-spacing: -0.02em;
@@ -216,16 +199,17 @@
 
   .aspect-name {
     font-family: 'Cinzel', serif;
-    font-size: clamp(7px, 2.2vw, 10px);
+    font-size: clamp(9px, 2.5vw, 14px);
     letter-spacing: 0.18em;
     text-transform: uppercase;
     margin-top: 4px;
     opacity: 0.7;
   }
 
-  /* Challenge icon - bottom 1/3 */
+  /* Challenge icon - bottom 20% */
   .challenge-band {
-    height: clamp(70px, 20vw, 100px);
+    flex: 1;
+    min-height: 0;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -246,8 +230,8 @@
   .challenge-band.sun { background: var(--sun-bg); }
 
   .challenge-icon {
-    width: clamp(36px, 11vw, 52px);
-    height: clamp(36px, 11vw, 52px);
+    width: clamp(36px, 11vw, 64px);
+    height: clamp(36px, 11vw, 64px);
     position: relative;
     z-index: 1;
   }
@@ -257,8 +241,8 @@
     left: 80%;
     top: 50%;
     transform: translate(-50%, -50%);
-    width: clamp(18px, 5.5vw, 26px);
-    height: clamp(36px, 11vw, 52px);
+    width: clamp(18px, 5.5vw, 32px);
+    height: clamp(36px, 11vw, 64px);
     z-index: 2;
   }
 
@@ -717,13 +701,66 @@
     transition: background 0.15s, box-shadow 0.15s;
   }
 
+  .scout-mode-toggle {
+    background: none;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    color: var(--text-dim);
+    font-family: 'Cinzel', serif;
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    padding: 6px 10px;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: border-color 0.15s, color 0.15s;
+  }
+  .scout-mode-toggle:hover { border-color: var(--text-dim); color: var(--text); }
+  .scout-mode-toggle.active { border-color: var(--foc-light); color: var(--foc-light); }
+
+  .arrow-btns {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    flex-shrink: 0;
+  }
+
+  .arrow-btn {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    color: var(--text-dim);
+    width: 32px;
+    height: 26px;
+    cursor: pointer;
+    font-size: 13px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    transition: border-color 0.1s, color 0.1s, background 0.1s;
+  }
+  .arrow-btn:hover:not(:disabled) { border-color: var(--text); color: var(--text); background: var(--surface2); }
+  .arrow-btn:disabled { opacity: 0.2; cursor: default; }
+
+  .scout-drag-ghost {
+    position: fixed;
+    pointer-events: none;
+    z-index: 1000;
+    opacity: 0.96;
+    box-shadow: 0 16px 40px rgba(0,0,0,0.75), 0 0 0 2px var(--awa-light);
+    transform: scale(1.04);
+    border-radius: 10px;
+    transition: none !important;
+  }
+
   .scout-item.dragging {
-    opacity: 0.4;
+    opacity: 0.25;
   }
 
   .scout-item.drag-over {
-    box-shadow: 0 0 0 2px var(--awa-light);
-    background: #1f2e1c;
+    box-shadow: 0 0 0 3px var(--awa-light);
+    background: #263a22;
+    border-color: var(--awa-light);
   }
 
   .scout-position {
@@ -849,13 +886,17 @@
   }
 
   .scout-top-drop.drag-over {
-    border-color: var(--awa);
-    background: rgba(34,100,54,0.12);
+    border-style: solid;
+    border-color: var(--awa-light);
+    background: rgba(82,183,136,0.18);
+    box-shadow: inset 0 0 0 1px var(--awa-light);
   }
 
   .scout-bottom-drop.drag-over {
-    border-color: var(--foc);
-    background: rgba(29,78,137,0.12);
+    border-style: solid;
+    border-color: var(--foc-light);
+    background: rgba(74,144,217,0.18);
+    box-shadow: inset 0 0 0 1px var(--foc-light);
   }
 
   .bottom-actions {
@@ -979,11 +1020,6 @@
 
 <div class="toast" id="toast"></div>
 
-<header>
-  <h1>Challenge Deck</h1>
-  <p>Earthborne Rangers</p>
-</header>
-
 <div class="main">
 
   <div class="deck-status">
@@ -1002,7 +1038,6 @@
   </div>
 
   <div class="history-section" id="history-section" style="display:none">
-    <div class="history-recent" id="history-recent"></div>
     <button class="history-toggle-btn" id="history-toggle" style="display:none"></button>
     <div class="history-older" id="history-older" style="display:none"></div>
   </div>
@@ -1034,10 +1069,11 @@
         <div class="modal-title">Scout</div>
         <div class="modal-subtitle" id="scout-subtitle"></div>
       </div>
+      <button class="scout-mode-toggle" id="scout-mode-toggle">⇅ Arrows</button>
     </div>
     <div class="scout-list" id="scout-list"></div>
     <div class="bottom-actions">
-      <div class="bottom-tag">Drag to reorder within scouted cards</div>
+      <div class="bottom-tag" id="scout-hint">Drag to reorder</div>
       <button class="btn-confirm" id="scout-confirm">Confirm Order</button>
     </div>
   </div>
@@ -1119,6 +1155,7 @@ let bottomCards = [];
 let scoutCount = 3;
 let scoutXCount = 1;
 let dragSrcIdx = null;
+let scoutArrowMode = false;
 let dragSrcZone = null;
 
 function shuffle(arr) {
@@ -1217,7 +1254,6 @@ function buildMiniCardHTML(card) {
 
 function updateHistory() {
   const section = document.getElementById('history-section');
-  const recentEl = document.getElementById('history-recent');
   const toggleBtn = document.getElementById('history-toggle');
   const olderEl = document.getElementById('history-older');
 
@@ -1227,20 +1263,11 @@ function updateHistory() {
   }
 
   section.style.display = '';
-  const recent = discard.slice(-3).reverse();
-  const older = discard.slice(0, -3).reverse();
-
-  recentEl.innerHTML = recent.map(buildMiniCardHTML).join('');
-
-  if (older.length > 0) {
-    toggleBtn.style.display = '';
-    toggleBtn.textContent = historyExpanded ? '▴ Hide older' : `▾ ${older.length} older`;
-    olderEl.innerHTML = historyExpanded ? older.map(buildMiniCardHTML).join('') : '';
-    olderEl.style.display = historyExpanded ? 'flex' : 'none';
-  } else {
-    toggleBtn.style.display = 'none';
-    olderEl.style.display = 'none';
-  }
+  toggleBtn.style.display = '';
+  const n = discard.length;
+  toggleBtn.textContent = historyExpanded ? '▴ Hide discard' : `▾ ${n} discarded`;
+  olderEl.innerHTML = historyExpanded ? [...discard].reverse().map(buildMiniCardHTML).join('') : '';
+  olderEl.style.display = historyExpanded ? 'flex' : 'none';
 }
 
 function updateUI() {
@@ -1393,8 +1420,11 @@ function renderScoutModal(n) {
 function renderScoutList() {
   const list = document.getElementById('scout-list');
 
+  const upDisabled  = (zone, i) => zone === 'top' && i === 0;
+  const downDisabled = (zone, i) => zone === 'bottom' && i === bottomCards.length - 1;
+
   const itemHTML = (card, zone, i) => `
-    <div class="scout-item" draggable="true" data-zone="${zone}" data-idx="${i}">
+    <div class="scout-item" ${scoutArrowMode ? '' : 'draggable="true"'} data-zone="${zone}" data-idx="${i}">
       <div class="scout-position">${i + 1}</div>
       <div class="scout-mini-aspects">
         <div class="mini-asp awa"><div class="mini-mod">${formatMod(card.awa)}</div><div class="mini-lbl">AWA</div></div>
@@ -1404,9 +1434,15 @@ function renderScoutList() {
       </div>
       <div class="scout-icon-badge ${card.icon}">${ICONS[card.icon]}</div>
       ${card.shuffle ? '<svg class="scout-shuffle-pip" viewBox="0 0 20 40" fill="none" xmlns="http://www.w3.org/2000/svg"><polygon points="10,2 18,20 10,38 2,20" stroke="#f4c542" stroke-width="2.5"/></svg>' : ''}
-      <svg class="drag-handle" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <line x1="4" y1="8" x2="20" y2="8"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="16" x2="20" y2="16"/>
-      </svg>
+      ${scoutArrowMode
+        ? `<div class="arrow-btns">
+            <button class="arrow-btn" data-action="up"   data-zone="${zone}" data-idx="${i}" ${upDisabled(zone,i)   ? 'disabled' : ''}>▲</button>
+            <button class="arrow-btn" data-action="down" data-zone="${zone}" data-idx="${i}" ${downDisabled(zone,i) ? 'disabled' : ''}>▼</button>
+           </div>`
+        : `<svg class="drag-handle" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+             <line x1="4" y1="8" x2="20" y2="8"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="16" x2="20" y2="16"/>
+           </svg>`
+      }
     </div>`;
 
   list.innerHTML =
@@ -1452,7 +1488,46 @@ function renderScoutList() {
     renderScoutList();
   };
 
+  // Sync toggle button + hint text
+  const toggleBtn = document.getElementById('scout-mode-toggle');
+  if (toggleBtn) {
+    toggleBtn.textContent = scoutArrowMode ? '⇄ Drag' : '⇅ Arrows';
+    toggleBtn.classList.toggle('active', scoutArrowMode);
+  }
+  const hint = document.getElementById('scout-hint');
+  if (hint) hint.textContent = scoutArrowMode ? 'Use arrows to reorder' : 'Drag to reorder';
+
+  // Arrow button move logic
+  const doArrowMove = (zone, idx, dir) => {
+    if (dir === 'up') {
+      if (zone === 'top') {
+        if (idx === 0) return;
+        [scoutCards[idx - 1], scoutCards[idx]] = [scoutCards[idx], scoutCards[idx - 1]];
+      } else {
+        if (idx === 0) { scoutCards.push(bottomCards.splice(0, 1)[0]); }
+        else { [bottomCards[idx - 1], bottomCards[idx]] = [bottomCards[idx], bottomCards[idx - 1]]; }
+      }
+    } else {
+      if (zone === 'top') {
+        if (idx === scoutCards.length - 1) { bottomCards.unshift(scoutCards.splice(idx, 1)[0]); }
+        else { [scoutCards[idx], scoutCards[idx + 1]] = [scoutCards[idx + 1], scoutCards[idx]]; }
+      } else {
+        if (idx === bottomCards.length - 1) return;
+        [bottomCards[idx], bottomCards[idx + 1]] = [bottomCards[idx + 1], bottomCards[idx]];
+      }
+    }
+    renderScoutList();
+  };
+
+  if (scoutArrowMode) {
+    list.querySelectorAll('.arrow-btn').forEach(btn => {
+      btn.addEventListener('click', () =>
+        doArrowMove(btn.dataset.zone, parseInt(btn.dataset.idx), btn.dataset.action));
+    });
+  }
+
   // Mouse drag events on items
+  if (!scoutArrowMode)
   list.querySelectorAll('.scout-item').forEach(el => {
     el.addEventListener('dragstart', e => {
       dragSrcIdx = parseInt(el.dataset.idx);
@@ -1460,7 +1535,7 @@ function renderScoutList() {
       el.classList.add('dragging');
       e.dataTransfer.effectAllowed = 'move';
     });
-    el.addEventListener('dragend', clearHighlights);
+    el.addEventListener('dragend', e => { el.classList.remove('dragging'); clearHighlights(); });
     el.addEventListener('dragover', e => {
       e.preventDefault();
       e.stopPropagation();
@@ -1479,17 +1554,40 @@ function renderScoutList() {
     });
 
     // Touch drag
-    let touchItem = null;
+    let touchGhost = null;
+    let touchStartRect = null;
+
+    const removeGhost = () => {
+      if (touchGhost) { touchGhost.remove(); touchGhost = null; }
+      el.classList.remove('dragging');
+      el.style.opacity = '';
+    };
+
     el.addEventListener('touchstart', e => {
       dragSrcIdx = parseInt(el.dataset.idx);
       dragSrcZone = el.dataset.zone;
-      touchItem = el;
-      el.style.opacity = '0.5';
+      touchStartRect = el.getBoundingClientRect();
+      el.style.opacity = '0.25';
+      // Create floating ghost
+      const ghost = el.cloneNode(true);
+      ghost.className += ' scout-drag-ghost';
+      ghost.style.left = touchStartRect.left + 'px';
+      ghost.style.top = touchStartRect.top + 'px';
+      ghost.style.width = touchStartRect.width + 'px';
+      document.body.appendChild(ghost);
+      touchGhost = ghost;
     }, {passive: true});
 
     el.addEventListener('touchmove', e => {
       e.preventDefault();
-      const y = e.touches[0].clientY;
+      const touch = e.touches[0];
+      const x = touch.clientX;
+      const y = touch.clientY;
+      // Move ghost above finger
+      if (touchGhost && touchStartRect) {
+        touchGhost.style.left = (x - touchStartRect.width / 2) + 'px';
+        touchGhost.style.top = (y - touchStartRect.height - 14) + 'px';
+      }
       clearHighlights();
       const topDrop = document.getElementById('scout-top-drop');
       const tdRect = topDrop?.getBoundingClientRect();
@@ -1505,12 +1603,12 @@ function renderScoutList() {
       }
       for (const item of list.querySelectorAll('.scout-item')) {
         const r = item.getBoundingClientRect();
-        if (y >= r.top && y <= r.bottom && item !== touchItem) { item.classList.add('drag-over'); break; }
+        if (y >= r.top && y <= r.bottom && item !== el) { item.classList.add('drag-over'); break; }
       }
     }, {passive: false});
 
     el.addEventListener('touchend', e => {
-      el.style.opacity = '';
+      removeGhost();
       const y = e.changedTouches[0].clientY;
       clearHighlights();
       const topDrop = document.getElementById('scout-top-drop');
@@ -1540,44 +1638,52 @@ function renderScoutList() {
       }
       dragSrcIdx = null; dragSrcZone = null;
     }, {passive: true});
-  });
 
-  // Drop on the top zone itself (empty area when all cards moved to bottom)
-  const topDrop = document.getElementById('scout-top-drop');
-  if (topDrop) {
-    topDrop.addEventListener('dragover', e => {
-      e.preventDefault();
+    el.addEventListener('touchcancel', () => {
+      removeGhost();
       clearHighlights();
-      topDrop.classList.add('drag-over');
-    });
-    topDrop.addEventListener('dragleave', e => {
-      if (!topDrop.contains(e.relatedTarget)) topDrop.classList.remove('drag-over');
-    });
-    topDrop.addEventListener('drop', e => {
-      e.preventDefault();
-      clearHighlights();
-      if (dragSrcIdx !== null) doMoveToTopStart(dragSrcZone, dragSrcIdx);
       dragSrcIdx = null; dragSrcZone = null;
     });
-  }
+  }); // end forEach scout-item
 
-  // Drop on the bottom zone itself (between bottom cards / on the label)
-  const bottomDrop = document.getElementById('scout-bottom-drop');
-  if (bottomDrop) {
-    bottomDrop.addEventListener('dragover', e => {
-      e.preventDefault();
-      clearHighlights();
-      bottomDrop.classList.add('drag-over');
-    });
-    bottomDrop.addEventListener('dragleave', e => {
-      if (!bottomDrop.contains(e.relatedTarget)) bottomDrop.classList.remove('drag-over');
-    });
-    bottomDrop.addEventListener('drop', e => {
-      e.preventDefault();
-      clearHighlights();
-      if (dragSrcIdx !== null) doMoveToBottomEnd(dragSrcZone, dragSrcIdx);
-      dragSrcIdx = null; dragSrcZone = null;
-    });
+  if (!scoutArrowMode) {
+    // Drop on the top zone itself (empty area when all cards moved to bottom)
+    const topDrop = document.getElementById('scout-top-drop');
+    if (topDrop) {
+      topDrop.addEventListener('dragover', e => {
+        e.preventDefault();
+        clearHighlights();
+        topDrop.classList.add('drag-over');
+      });
+      topDrop.addEventListener('dragleave', e => {
+        if (!topDrop.contains(e.relatedTarget)) topDrop.classList.remove('drag-over');
+      });
+      topDrop.addEventListener('drop', e => {
+        e.preventDefault();
+        clearHighlights();
+        if (dragSrcIdx !== null) doMoveToTopStart(dragSrcZone, dragSrcIdx);
+        dragSrcIdx = null; dragSrcZone = null;
+      });
+    }
+
+    // Drop on the bottom zone itself (between bottom cards / on the label)
+    const bottomDrop = document.getElementById('scout-bottom-drop');
+    if (bottomDrop) {
+      bottomDrop.addEventListener('dragover', e => {
+        e.preventDefault();
+        clearHighlights();
+        bottomDrop.classList.add('drag-over');
+      });
+      bottomDrop.addEventListener('dragleave', e => {
+        if (!bottomDrop.contains(e.relatedTarget)) bottomDrop.classList.remove('drag-over');
+      });
+      bottomDrop.addEventListener('drop', e => {
+        e.preventDefault();
+        clearHighlights();
+        if (dragSrcIdx !== null) doMoveToBottomEnd(dragSrcZone, dragSrcIdx);
+        dragSrcIdx = null; dragSrcZone = null;
+      });
+    }
   }
 }
 
@@ -1688,6 +1794,10 @@ document.getElementById('scout-x-inc').addEventListener('click', () => { scoutXC
 document.getElementById('btn-shuffle-deck').addEventListener('click', shuffleDeck);
 document.getElementById('btn-undo-draw').addEventListener('click', undoDraw);
 document.getElementById('scout-confirm').addEventListener('click', confirmScout);
+document.getElementById('scout-mode-toggle').addEventListener('click', () => {
+  scoutArrowMode = !scoutArrowMode;
+  renderScoutList();
+});
 document.getElementById('btn-stats').addEventListener('click', openStats);
 document.getElementById('stats-close').addEventListener('click', () =>
   document.getElementById('stats-modal').classList.remove('open'));
