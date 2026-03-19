@@ -38,11 +38,11 @@
     background: var(--bg);
     color: var(--text);
     font-family: 'Crimson Pro', Georgia, serif;
-    min-height: 100dvh;
+    height: 100dvh;
+    overflow: hidden;
     display: flex;
     flex-direction: column;
     align-items: center;
-    overflow-x: hidden;
   }
 
   /* Atmospheric background */
@@ -58,17 +58,15 @@
     z-index: 0;
   }
 
-  @media (max-width: 480px) {
-    .main { gap: 12px; padding: 6px 12px 14px; }
-  }
 
   .main {
     flex: 1;
+    min-height: 0;
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding: 8px 12px 20px;
-    gap: 16px;
+    padding: 8px 12px 16px;
+    gap: 12px;
     position: relative;
     z-index: 1;
     width: 100%;
@@ -111,18 +109,29 @@
 
   /* CARD */
   .card-area {
+    flex: 1;
+    min-height: 0;
     width: var(--card-w);
     display: flex;
     flex-direction: column;
-    align-items: center;
+    align-items: stretch;
     gap: 0;
   }
 
-  .card {
-    width: 100%;
-    aspect-ratio: 3/4;
+  #card-display {
+    flex: 1;
+    min-height: 0;
     display: flex;
     flex-direction: column;
+  }
+
+  .card {
+    flex: 1;
+    min-height: 0;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    container-type: size;
     border-radius: var(--radius);
     overflow: hidden;
     box-shadow:
@@ -131,7 +140,6 @@
       inset 0 1px 0 rgba(255,255,255,0.05);
     position: relative;
     transition: transform 0.15s ease, opacity 0.15s ease;
-    flex-shrink: 0;
   }
 
   .card.animating-out {
@@ -166,7 +174,7 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    padding: 12px 8px;
+    padding: clamp(1px, 0.3cqh, 3px) clamp(1px, 0.3cqw, 3px);
     position: relative;
     overflow: hidden;
   }
@@ -186,7 +194,7 @@
 
   .aspect-modifier {
     font-family: 'Cinzel', serif;
-    font-size: clamp(36px, 14vw, 88px);
+    font-size: clamp(28px, 33cqh, 220px);
     font-weight: 700;
     line-height: 1;
     letter-spacing: -0.02em;
@@ -199,10 +207,10 @@
 
   .aspect-name {
     font-family: 'Cinzel', serif;
-    font-size: clamp(9px, 2.5vw, 14px);
+    font-size: clamp(5px, 1.5cqh, 14px);
     letter-spacing: 0.18em;
     text-transform: uppercase;
-    margin-top: 4px;
+    margin-top: clamp(1px, 0.3cqh, 4px);
     opacity: 0.7;
   }
 
@@ -230,8 +238,8 @@
   .challenge-band.sun { background: var(--sun-bg); }
 
   .challenge-icon {
-    width: clamp(36px, 11vw, 64px);
-    height: clamp(36px, 11vw, 64px);
+    width: clamp(24px, 12cqh, 80px);
+    height: clamp(24px, 12cqh, 80px);
     position: relative;
     z-index: 1;
   }
@@ -241,8 +249,8 @@
     left: 80%;
     top: 50%;
     transform: translate(-50%, -50%);
-    width: clamp(18px, 5.5vw, 32px);
-    height: clamp(36px, 11vw, 64px);
+    width: clamp(12px, 6cqh, 44px);
+    height: clamp(24px, 12cqh, 88px);
     z-index: 2;
   }
 
@@ -267,7 +275,7 @@
 
   .stats-section-label {
     font-family: 'Cinzel', serif;
-    font-size: 10px;
+    font-size: 13px;
     letter-spacing: 0.2em;
     text-transform: uppercase;
     color: var(--text-dim);
@@ -282,7 +290,7 @@
 
   .stats-table th {
     padding: 8px 6px;
-    font-size: 14px;
+    font-size: 18px;
     font-weight: 600;
     letter-spacing: 0.12em;
     text-align: center;
@@ -299,7 +307,7 @@
   .stats-table tr:last-child td { border-bottom: none; }
 
   .stats-table td.mod-label {
-    font-size: 15px;
+    font-size: 19px;
     font-weight: 600;
     color: var(--text-dim);
     text-align: left;
@@ -310,14 +318,14 @@
   .stats-table td.zero .stats-pct { font-weight: 400; }
 
   .stats-pct {
-    font-size: 19px;
+    font-size: 24px;
     font-weight: 700;
     display: block;
     line-height: 1.1;
   }
 
   .stats-raw {
-    font-size: 12px;
+    font-size: 14px;
     font-weight: 400;
     color: var(--text-dim);
     display: block;
@@ -344,17 +352,17 @@
     gap: 6px;
   }
 
-  .stats-icon-tile svg { width: 32px; height: 32px; }
+  .stats-icon-tile svg { width: 42px; height: 42px; }
 
   .stats-icon-count {
     font-family: 'Cinzel', serif;
-    font-size: 22px;
+    font-size: 28px;
     font-weight: 700;
     line-height: 1;
   }
 
   .stats-icon-name {
-    font-size: 10px;
+    font-size: 13px;
     letter-spacing: 0.12em;
     text-transform: uppercase;
     opacity: 0.75;
@@ -362,11 +370,12 @@
 
   /* Empty state card */
   .card-empty {
+    flex: 1;
+    min-height: 0;
     width: 100%;
     background: var(--surface);
     border: 2px dashed var(--border);
     border-radius: var(--radius);
-    aspect-ratio: 4/5;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -652,7 +661,7 @@
 
   .modal-title {
     font-family: 'Cinzel', serif;
-    font-size: 14px;
+    font-size: 18px;
     font-weight: 600;
     letter-spacing: 0.15em;
     text-transform: uppercase;
@@ -660,7 +669,7 @@
   }
 
   .modal-subtitle {
-    font-size: 12px;
+    font-size: 14px;
     color: var(--text-dim);
     margin-top: 2px;
     letter-spacing: 0.05em;
@@ -765,7 +774,7 @@
 
   .scout-position {
     font-family: 'Cinzel', serif;
-    font-size: 16px;
+    font-size: 20px;
     color: var(--text-dim);
     width: 28px;
     text-align: center;
@@ -792,13 +801,13 @@
 
   .mini-mod {
     font-family: 'Cinzel', serif;
-    font-size: 20px;
+    font-size: 26px;
     font-weight: 700;
     line-height: 1;
   }
 
   .mini-lbl {
-    font-size: 10px;
+    font-size: 12px;
     letter-spacing: 0.1em;
     opacity: 0.6;
     text-transform: uppercase;
@@ -810,8 +819,8 @@
   .mini-asp.foc .mini-mod { color: var(--foc-light); }
 
   .scout-icon-badge {
-    width: 44px;
-    height: 44px;
+    width: 54px;
+    height: 54px;
     border-radius: 6px;
     display: flex;
     align-items: center;
@@ -838,7 +847,7 @@
 
   .scout-zone-label {
     font-family: 'Cinzel', serif;
-    font-size: 9px;
+    font-size: 12px;
     letter-spacing: 0.2em;
     text-transform: uppercase;
     color: var(--awa-light);
@@ -1037,8 +1046,8 @@
     <div id="card-display"></div>
   </div>
 
-  <div class="history-section" id="history-section" style="display:none">
-    <button class="history-toggle-btn" id="history-toggle" style="display:none"></button>
+  <div class="history-section" id="history-section">
+    <button class="history-toggle-btn" id="history-toggle">▾ 0 discarded</button>
     <div class="history-older" id="history-older" style="display:none"></div>
   </div>
 
@@ -1253,18 +1262,18 @@ function buildMiniCardHTML(card) {
 }
 
 function updateHistory() {
-  const section = document.getElementById('history-section');
   const toggleBtn = document.getElementById('history-toggle');
   const olderEl = document.getElementById('history-older');
+  const n = discard.length;
 
-  if (discard.length === 0) {
-    section.style.display = 'none';
+  toggleBtn.disabled = n === 0;
+  if (n === 0) {
+    historyExpanded = false;
+    toggleBtn.textContent = '▾ 0 discarded';
+    olderEl.style.display = 'none';
     return;
   }
 
-  section.style.display = '';
-  toggleBtn.style.display = '';
-  const n = discard.length;
   toggleBtn.textContent = historyExpanded ? '▴ Hide discard' : `▾ ${n} discarded`;
   olderEl.innerHTML = historyExpanded ? [...discard].reverse().map(buildMiniCardHTML).join('') : '';
   olderEl.style.display = historyExpanded ? 'flex' : 'none';
