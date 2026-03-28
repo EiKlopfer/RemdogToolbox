@@ -263,7 +263,9 @@
     transition: border-color 0.15s, background 0.15s;
   }
   .pile-btn:hover { border-color: var(--text-dim); background: var(--surface2); }
-  .pile-stats-icon { font-size: 22px; line-height: 1.2; }
+  #btn-stats:hover { filter: brightness(1.2); }
+  .pile-stats-icon { font-size: 22px; line-height: 1; display: flex; align-items: center; justify-content: center; gap: 3px; min-height: 28px; }
+  .pile-stats-icon svg { display: block; }
 
   .stats-body {
     padding: 20px 16px;
@@ -526,6 +528,49 @@
   .mini-challenge-band.crest { background: var(--crest-bg); }
   .mini-challenge-band.mountain { background: var(--mountain-bg); }
   .mini-challenge-band.sun { background: var(--sun-bg); }
+
+  /* Scout panel — replaces deck-status when scouted cards are known */
+  .scout-panel {
+    width: var(--card-w);
+    display: flex;
+    gap: 6px;
+    justify-content: center;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    padding: 8px;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    background: var(--surface);
+    cursor: pointer;
+  }
+  .scout-panel:hover { border-color: var(--text-dim); background: var(--surface2); }
+  .scout-panel .mini-card { opacity: 1; }
+
+  .scout-shuffle-sep {
+    align-self: stretch;
+    width: 18px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+  }
+  .scout-shuffle-sep::before {
+    content: '';
+    position: absolute;
+    top: 0; bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 1.5px;
+    background: rgba(244,197,66,0.5);
+  }
+  .scout-shuffle-sep svg {
+    width: 12px;
+    height: 24px;
+    position: relative;
+    z-index: 1;
+  }
+  .scout-after-shuffle { opacity: 0.3; }
 
   .history-toggle-btn {
     width: 100%;
@@ -1023,24 +1068,125 @@
     text-align: center;
     color: var(--text);
   }
+
+  /* === THEME TOGGLE === */
+  .theme-toggle-btn {
+    position: fixed;
+    top: 10px;
+    right: 12px;
+    z-index: 10;
+    width: 34px;
+    height: 34px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text-dim);
+    font-size: 16px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: border-color 0.15s, background 0.15s;
+    line-height: 1;
+  }
+  .theme-toggle-btn:hover { border-color: var(--text-dim); background: var(--surface2); }
+
+  /* === BRIGHT THEME === */
+  body.theme-bright {
+    --awa-bg: #c8e8d6;
+    --awa-light: #1a5c38;
+    --spi-bg: #faedc0;
+    --spi-light: #7a5200;
+    --fit-bg: #f5c8c8;
+    --fit-light: #7a1418;
+    --foc-bg: #c5d8f0;
+    --foc-light: #1a3c7a;
+    --crest-bg: #a82020;
+    --mountain-bg: #1e4a88;
+    --sun-bg: #a07800;
+    --bg: #f5f0e8;
+    --surface: #ede8df;
+    --surface2: #e0dbd0;
+    --border: #c8c0b0;
+    --text: #1a1612;
+    --text-dim: #6a6058;
+  }
+
+  body.theme-bright::before {
+    background:
+      radial-gradient(ellipse 60% 40% at 50% 0%, rgba(45,106,79,0.07) 0%, transparent 70%),
+      radial-gradient(ellipse 40% 30% at 20% 80%, rgba(155,34,38,0.05) 0%, transparent 60%),
+      radial-gradient(ellipse 50% 40% at 80% 60%, rgba(29,78,137,0.05) 0%, transparent 60%);
+  }
+
+  body.theme-bright .card {
+    box-shadow: 0 4px 20px rgba(0,0,0,0.10), 0 1px 4px rgba(0,0,0,0.06),
+      inset 0 1px 0 rgba(255,255,255,0.8);
+  }
+
+  body.theme-bright .btn-primary {
+    background: linear-gradient(135deg, #2d6a4f 0%, #1d5038 100%);
+    color: rgba(255,255,255,0.92);
+    box-shadow: 0 4px 16px rgba(0,0,0,0.12), inset 0 1px 0 rgba(255,255,255,0.15);
+  }
+  body.theme-bright .btn-primary:active {
+    background: linear-gradient(135deg, #3d8060 0%, #2d6a4f 100%);
+  }
+  body.theme-bright .btn-primary.shuffle-required {
+    background: linear-gradient(135deg, #9a7200 0%, #7a5800 100%);
+    border-color: #c87800;
+    color: #fff8e0;
+  }
+  body.theme-bright .btn-primary.shuffle-required:active {
+    background: linear-gradient(135deg, #b08400 0%, #9a7200 100%);
+  }
+
+  body.theme-bright .btn-confirm {
+    background: linear-gradient(135deg, #2d6a4f 0%, #1d5038 100%);
+    color: rgba(255,255,255,0.92);
+  }
+
+  body.theme-bright .btn-bottom.top {
+    background: rgba(45,106,79,0.12);
+  }
+  body.theme-bright .btn-bottom.bottom {
+    background: rgba(29,78,137,0.12);
+  }
+
+  body.theme-bright .scout-item.drag-over {
+    background: rgba(45,106,79,0.10);
+  }
+
+  body.theme-bright .toast {
+    background: #faedc0;
+    border-color: #c87800;
+    color: #7a5200;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+  }
+
+  body.theme-bright .modal-overlay {
+    background: rgba(160,150,135,0.75);
+  }
 </style>
 </head>
 <body>
 
+<button class="theme-toggle-btn" id="btn-theme">☀</button>
 <div class="toast" id="toast"></div>
 
 <div class="main">
 
-  <div class="deck-status">
-    <div class="pile">
+  <div class="deck-status" id="deck-status">
+    <div class="pile" id="pile-deck">
       <div class="pile-count" id="deck-count">24</div>
       <div class="pile-label">In Deck</div>
     </div>
     <button class="pile pile-btn" id="btn-stats">
-      <div class="pile-count pile-stats-icon">◈</div>
+      <div class="pile-count pile-stats-icon" id="stats-btn-icon">◈</div>
       <div class="pile-label">Deck Stats</div>
     </button>
   </div>
+  <div class="scout-panel" id="scout-panel" style="display:none"></div>
 
   <div class="card-area">
     <div id="card-display"></div>
@@ -1161,6 +1307,7 @@ let shufflePending = false;
 let historyExpanded = false;
 let scoutCards = [];
 let bottomCards = [];
+let knownTopCards = [];
 let scoutCount = 3;
 let scoutXCount = 1;
 let dragSrcIdx = null;
@@ -1178,7 +1325,7 @@ const SAVE_KEY = 'challenge-deck-state';
 
 function saveState() {
   try {
-    localStorage.setItem(SAVE_KEY, JSON.stringify({ deck, discard, currentCard, shufflePending }));
+    localStorage.setItem(SAVE_KEY, JSON.stringify({ deck, discard, currentCard, shufflePending, knownTopCards }));
   } catch(e) {}
 }
 
@@ -1191,6 +1338,7 @@ function init() {
       discard = saved.discard;
       currentCard = saved.currentCard ?? null;
       shufflePending = saved.shufflePending ?? false;
+      knownTopCards = Array.isArray(saved.knownTopCards) ? saved.knownTopCards : [];
       updateUI();
       return;
     }
@@ -1279,6 +1427,76 @@ function updateHistory() {
   olderEl.style.display = historyExpanded ? 'flex' : 'none';
 }
 
+function updateDeckPile() {
+  document.getElementById('deck-count').textContent = deck.length;
+}
+
+function updateScoutPanel() {
+  const panel = document.getElementById('scout-panel');
+  const status = document.getElementById('deck-status');
+  if (knownTopCards.length > 0 && deck.length > 0) {
+    if (knownTopCards.length > deck.length) knownTopCards = knownTopCards.slice(0, deck.length);
+    const sepHTML = `<div class="scout-shuffle-sep">
+      <svg viewBox="0 0 20 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <polygon points="10,2 18,20 10,38 2,20" stroke="rgba(244,197,66,0.9)" stroke-width="2.5"/>
+      </svg>
+    </div>`;
+    let html = '';
+    let afterShuffle = false;
+    for (const card of knownTopCards) {
+      const cardHTML = buildMiniCardHTML(card);
+      html += afterShuffle ? `<div class="scout-after-shuffle">${cardHTML}</div>` : cardHTML;
+      if (!afterShuffle && card.shuffle) { html += sepHTML; afterShuffle = true; }
+    }
+    panel.innerHTML = html;
+    panel.style.display = 'flex';
+    status.style.display = 'none';
+  } else {
+    knownTopCards = [];
+    panel.style.display = 'none';
+    status.style.display = '';
+  }
+}
+
+function updateStatsBtn() {
+  const btn = document.getElementById('btn-stats');
+  const iconDiv = document.getElementById('stats-btn-icon');
+  const iconMeta = {
+    mountain: { bg: '#1a3a6b', border: '#3a6aab40' },
+    crest:    { bg: '#8b1a1a', border: '#cb5a5a40' },
+    sun:      { bg: '#8a6400', border: '#c4a40040' },
+  };
+
+  if (deck.length === 0) {
+    btn.style.background = '';
+    btn.style.borderColor = '';
+    iconDiv.innerHTML = '◈';
+    return;
+  }
+
+  const counts = { mountain: 0, crest: 0, sun: 0 };
+  for (const c of deck) counts[c.icon]++;
+  const max = Math.max(counts.mountain, counts.crest, counts.sun);
+  const winners = ['mountain', 'crest', 'sun'].filter(k => counts[k] === max);
+
+  const sz = winners.length === 1 ? 28 : winners.length === 2 ? 22 : 17;
+  iconDiv.innerHTML = winners.map(w =>
+    `<span style="display:inline-flex;width:${sz}px;height:${sz}px;flex-shrink:0">${ICONS[w]}</span>`
+  ).join('');
+
+  if (winners.length === 1) {
+    btn.style.background = iconMeta[winners[0]].bg;
+    btn.style.borderColor = iconMeta[winners[0]].border;
+  } else {
+    const stops = winners.map((w, i) => {
+      const pct = 100 / winners.length;
+      return `${iconMeta[w].bg} ${(i * pct).toFixed(1)}% ${((i + 1) * pct).toFixed(1)}%`;
+    });
+    btn.style.background = `linear-gradient(90deg, ${stops.join(', ')})`;
+    btn.style.borderColor = '';
+  }
+}
+
 function updateUI() {
   const display = document.getElementById('card-display');
   if (currentCard) {
@@ -1289,7 +1507,8 @@ function updateUI() {
     display.innerHTML = buildEmptyHTML(deck.length > 0 ? `${deck.length} card${deck.length !== 1 ? 's' : ''} in deck · tap Draw` : 'Deck empty — tap Full Shuffle');
   }
 
-  document.getElementById('deck-count').textContent = deck.length;
+  updateDeckPile();
+  updateScoutPanel();
 
   const btnDraw = document.getElementById('btn-draw');
   if (shufflePending) {
@@ -1310,6 +1529,7 @@ function updateUI() {
   document.getElementById('btn-reshuffle').disabled = discard.length === 0 && !currentCard;
   updateScoutXStepper();
   updateHistory();
+  updateStatsBtn();
   saveState();
 }
 
@@ -1331,6 +1551,7 @@ function drawCard() {
 
   doAnimate(() => {
     const card = deck.shift();
+    if (knownTopCards.length > 0) knownTopCards.shift();
     if (currentCard) discard.push(currentCard);
     currentCard = card;
     updateUI();
@@ -1354,6 +1575,7 @@ function drawCard() {
           shuffle(reshuffled);
           deck = reshuffled;
           discard = [];
+          knownTopCards = [];
           updateUI();
         }
       }, 600);
@@ -1364,12 +1586,14 @@ function drawCard() {
 function shuffleDeck() {
   if (deck.length === 0) return;
   shuffle(deck);
+  knownTopCards = [];
   updateUI();
 }
 
 function undoDraw() {
   if (!currentCard) return;
   deck.unshift(currentCard);
+  knownTopCards = [];
   if (currentCard.shuffle) shufflePending = false;
   currentCard = discard.length > 0 ? discard.pop() : null;
   showToast('↩ Card returned to top of deck — use Full Shuffle for a random next draw');
@@ -1406,6 +1630,7 @@ function reshuffle() {
   discard = [];
   currentCard = null;
   shufflePending = false;
+  knownTopCards = [];
   shuffle(deck);
   updateUI();
 }
@@ -1699,6 +1924,7 @@ function renderScoutList() {
 function confirmScout() {
   const n = scoutCards.length + bottomCards.length;
   deck = [...scoutCards, ...deck.slice(n), ...bottomCards];
+  knownTopCards = scoutCards.map(c => ({ ...c }));
   bottomCards = [];
   closeScout();
   updateUI();
@@ -1759,10 +1985,11 @@ function openStats() {
   const iconCounts = { mountain: 0, crest: 0, sun: 0 };
   for (const c of deck) iconCounts[c.icon]++;
 
+  const bright = document.body.classList.contains('theme-bright');
   const iconTiles = [
-    { key: 'mountain', label: 'Mountain', bg: 'var(--mountain-bg)', color: '#4a90d9' },
-    { key: 'crest',    label: 'Crest',    bg: 'var(--crest-bg)',    color: '#e05c60' },
-    { key: 'sun',      label: 'Sun',      bg: 'var(--sun-bg)',      color: '#f4c542' },
+    { key: 'mountain', label: 'Mountain', bg: 'var(--mountain-bg)', color: bright ? '#1e4a88' : '#4a90d9' },
+    { key: 'crest',    label: 'Crest',    bg: 'var(--crest-bg)',    color: bright ? '#a82020' : '#e05c60' },
+    { key: 'sun',      label: 'Sun',      bg: 'var(--sun-bg)',      color: bright ? '#a07800' : '#f4c542' },
   ].map(({ key, label, bg, color }) => `
     <div class="stats-icon-tile" style="background:${bg}20;border:1px solid ${bg}">
       <div style="width:32px;height:32px">${ICONS[key]}</div>
@@ -1810,6 +2037,20 @@ document.getElementById('scout-mode-toggle').addEventListener('click', () => {
 document.getElementById('btn-stats').addEventListener('click', openStats);
 document.getElementById('stats-close').addEventListener('click', () =>
   document.getElementById('stats-modal').classList.remove('open'));
+document.getElementById('scout-panel').addEventListener('click', openStats);
+
+// Theme
+let theme = localStorage.getItem('challenge-deck-theme') || 'dark';
+function applyTheme() {
+  document.body.classList.toggle('theme-bright', theme === 'bright');
+  document.getElementById('btn-theme').textContent = theme === 'dark' ? '☀' : '◑';
+}
+document.getElementById('btn-theme').addEventListener('click', () => {
+  theme = theme === 'dark' ? 'bright' : 'dark';
+  localStorage.setItem('challenge-deck-theme', theme);
+  applyTheme();
+});
+applyTheme();
 
 init();
 </script>
