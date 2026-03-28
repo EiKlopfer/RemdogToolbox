@@ -75,6 +75,7 @@
 
   /* DECK STATUS */
   .deck-status {
+    position: relative;
     display: flex;
     gap: 12px;
     width: 100%;
@@ -1071,17 +1072,16 @@
 
   /* === THEME TOGGLE === */
   .theme-toggle-btn {
-    position: fixed;
-    top: 10px;
-    right: 12px;
-    z-index: 10;
-    width: 34px;
-    height: 34px;
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 26px;
+    height: 26px;
     background: var(--surface);
     border: 1px solid var(--border);
-    border-radius: 8px;
+    border-radius: 6px;
     color: var(--text-dim);
-    font-size: 16px;
+    font-size: 12px;
     cursor: pointer;
     display: flex;
     align-items: center;
@@ -1171,12 +1171,12 @@
 </head>
 <body>
 
-<button class="theme-toggle-btn" id="btn-theme">☀</button>
 <div class="toast" id="toast"></div>
 
 <div class="main">
 
   <div class="deck-status" id="deck-status">
+    <button class="theme-toggle-btn" id="btn-theme">☀</button>
     <div class="pile" id="pile-deck">
       <div class="pile-count" id="deck-count">24</div>
       <div class="pile-label">In Deck</div>
